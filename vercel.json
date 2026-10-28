@@ -1,0 +1,6 @@
+{
+  "crons": [
+    { "path": "/api/retry-alerts", "schedule": "0 14 * * *" },
+    { "path": "/api/deposit-holds", "schedule": "30 11 * * *" }
+  ]
+}
