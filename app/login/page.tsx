@@ -1,41 +1,39 @@
-import CatchOfTheDay from "@/components/CatchOfTheDay";
-import FishingMap from "@/components/FishingMap";
-import Reserve from "./reserve/Reserve";
+import { redirect } from "next/navigation";
+import { safeEqual, startSession } from "@/lib/requireAdmin";
 
-// Put your logo file at public/logo.png
-const links = [["/recipes", "Recipes & cooking videos"], ["/howto", "How-to videos"], ["/photos", "Customer photos & share your catch"]];
+const configured = () => !!process.env.ADMIN_PASSWORD && !!process.env.SESSION_SECRET;
 
-export default function Home() {
+async function login(fd: FormData) {
+  "use server";
+  if (!configured()) redirect("/login?error=config");
+  const pw = String(fd.get("password") ?? "");
+  if (!safeEqual(pw, process.env.ADMIN_PASSWORD!)) {
+    await new Promise((r) => setTimeout(r, 1200)); // slows down password guessing
+    redirect("/login?error=1");
+  }
+  await startSession();
+  redirect("/admin/bookings");
+}
+
+export default async function Login({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
+  const error = (await searchParams).error;
   return (
-    <main className="mx-auto max-w-4xl space-y-5 p-4">
-      <header className="text-center">
-        <img src="/logo.png" alt="Anchor Management Destin" className="mx-auto w-80 max-w-[80%]" />
-        <h1 className="mt-2 text-3xl font-extrabold">Rent it. Fish it. Return it.</h1>
-        <nav className="mt-3 flex flex-wrap justify-center gap-2" aria-label="More from Anchor Management">
-          {links.map(([href, label]) => (
-            <a key={href} href={href} className="rounded-full border-2 border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-yellow-300 hover:text-slate-900">{label}</a>
-          ))}
-        </nav>
-      </header>
-      <CatchOfTheDay />
-      <Reserve />
-      <FishingMap />
-      <section className="rounded-xl border bg-white p-4 shadow-sm">
-        <h2 className="text-2xl font-bold">Weather and tides</h2>
-        <p className="text-sm">Conditions change, so check the live weather and tide links before you head out.</p>
-        <p className="mt-2">
-          <a className="font-bold text-teal-800 underline" href="https://forecast.weather.gov/MapClick.php?lat=30.3935&lon=-86.4958" target="_blank" rel="noopener noreferrer">Live forecast (National Weather Service)</a><br />
-          <a className="font-bold text-teal-800 underline" href="https://tide-forecast.com/locations/East-Pass-Destin-Choctawhatchee-Bay-Florida/tides/latest" target="_blank" rel="noopener noreferrer">Today&apos;s tide times for East Pass, Destin</a><br />
-          <a className="font-bold text-teal-800 underline" href="https://www.usharbors.com/harbor/florida/destin-choctawhatchee-bay-east-pass-fl/tides/" target="_blank" rel="noopener noreferrer">Tide chart for East Pass, Destin</a>
+    <main className="mx-auto max-w-sm p-6">
+      <h1 className="text-2xl font-bold">Admin login</h1>
+      {!configured() && (
+        <p role="alert" className="mt-3 rounded border-2 border-red-700 bg-red-50 p-3 font-bold text-red-800">
+          Admin login is not set up yet. In Vercel, add ADMIN_PASSWORD and SESSION_SECRET under Settings, Environment
+          Variables, then redeploy.
         </p>
-      </section>
-      <section className="rounded-xl border-l-8 border-yellow-300 bg-white p-4 shadow-sm">
-        <h2 className="text-2xl font-bold">Need a Florida fishing license?</h2>
-        <p>Most anglers need a Florida saltwater fishing license, and exemptions and fees are set by the state. Check the Florida Fish and Wildlife Conservation Commission (FWC) before your trip. Rental gear does not include a license.</p>
-        <p className="mt-2"><a className="font-bold text-teal-800 underline" href="https://myfwc.com/license/recreational/do-i-need-a-license/" target="_blank" rel="noopener noreferrer">Do I need a license? (FWC)</a><br />
-          <a className="font-bold text-teal-800 underline" href="https://myfwc.com/license/recreational/saltwater-fishing/" target="_blank" rel="noopener noreferrer">Saltwater fishing licenses, fees and rules (FWC)</a></p>
-      </section>
-      <footer className="pb-6 text-center text-sm">Fishing gear rentals · Destin, Florida · <a href="/admin/bookings" className="underline">Admin login</a></footer>
+      )}
+      <form action={login} className="mt-4 space-y-3">
+        <label className="block font-bold">Password
+          <input name="password" type="password" autoComplete="current-password" className="mt-1 w-full rounded border p-2 font-normal" />
+        </label>
+        {error === "1" && <p role="alert" className="font-bold text-red-700">Incorrect password.</p>}
+        {error === "config" && <p role="alert" className="font-bold text-red-700">Login is not set up (see the red note above).</p>}
+        <button className="w-full rounded bg-teal-700 px-4 py-3 font-bold text-white">Log in</button>
+      </form>
     </main>
   );
 }
