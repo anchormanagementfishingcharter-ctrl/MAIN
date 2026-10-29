@@ -1,4 +1,5 @@
 import CatchOfTheDay from "@/components/CatchOfTheDay";
+import FishingMap from "@/components/FishingMap";
 import Reserve from "./reserve/Reserve";
 
 // Put your logo file at public/logo.png
@@ -18,6 +19,16 @@ export default function Home() {
       </header>
       <CatchOfTheDay />
       <Reserve />
+      <FishingMap />
+      <section className="rounded-xl border bg-white p-4 shadow-sm">
+        <h2 className="text-2xl font-bold">Weather and tides</h2>
+        <p className="text-sm">Conditions change, so check the live weather and tide links before you head out.</p>
+        <p className="mt-2">
+          <a className="font-bold text-teal-800 underline" href="https://forecast.weather.gov/MapClick.php?lat=30.3935&lon=-86.4958" target="_blank" rel="noopener noreferrer">Live forecast (National Weather Service)</a><br />
+          <a className="font-bold text-teal-800 underline" href="https://tide-forecast.com/locations/East-Pass-Destin-Choctawhatchee-Bay-Florida/tides/latest" target="_blank" rel="noopener noreferrer">Today&apos;s tide times for East Pass, Destin</a><br />
+          <a className="font-bold text-teal-800 underline" href="https://www.usharbors.com/harbor/florida/destin-choctawhatchee-bay-east-pass-fl/tides/" target="_blank" rel="noopener noreferrer">Tide chart for East Pass, Destin</a>
+        </p>
+      </section>
       <section className="rounded-xl border-l-8 border-yellow-300 bg-white p-4 shadow-sm">
         <h2 className="text-2xl font-bold">Need a Florida fishing license?</h2>
         <p>Most anglers need a Florida saltwater fishing license, and exemptions and fees are set by the state. Check the Florida Fish and Wildlife Conservation Commission (FWC) before your trip. Rental gear does not include a license.</p>
