@@ -22,7 +22,8 @@ export default async function Recipes() {
   const { data } = await db.from("videos").select("id,title,path").eq("kind", "cook").order("created_at", { ascending: false });
   return (
     <main className="mx-auto max-w-3xl p-4">
-      <h1 className="text-3xl font-bold">Catch it, cook it</h1>
+      <a href="/" className="font-bold text-teal-800 underline">← Back to reserve your gear</a>
+      <h1 className="mt-2 text-3xl font-bold">Catch it, cook it</h1>
       <section className="mt-4">
         <h2 className="text-2xl font-bold">Cooking videos</h2>
         <VideoGrid videos={data ?? []} />
@@ -40,6 +41,7 @@ export default async function Recipes() {
           </details>
         ))}
       </section>
+      <p className="mt-8 text-center"><a href="/" className="font-bold text-teal-800 underline">← Back to reserve your gear</a></p>
     </main>
   );
 }
