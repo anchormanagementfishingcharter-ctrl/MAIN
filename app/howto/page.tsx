@@ -16,7 +16,8 @@ export default async function HowTo() {
   const { data } = await db.from("videos").select("id,title,path,cat").eq("kind", "howto").order("created_at", { ascending: false });
   return (
     <main className="mx-auto max-w-3xl p-4">
-      <h1 className="text-3xl font-bold">How-to videos</h1>
+      <a href="/" className="font-bold text-teal-800 underline">← Back to reserve your gear</a>
+      <h1 className="mt-2 text-3xl font-bold">How-to videos</h1>
       <p>Quick help for your rental gear.</p>
       {TOPICS.map((t) => (
         <section key={t.id} id={t.id} className="mt-6 scroll-mt-4 rounded-xl border p-4">
@@ -26,6 +27,7 @@ export default async function HowTo() {
           <VideoGrid videos={(data ?? []).filter((v) => v.cat === t.id)} />
         </section>
       ))}
+      <p className="mt-8 text-center"><a href="/" className="font-bold text-teal-800 underline">← Back to reserve your gear</a></p>
     </main>
   );
 }
