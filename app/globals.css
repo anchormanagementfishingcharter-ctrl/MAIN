@@ -1,6 +1,10 @@
 @import "tailwindcss";
 
+:root {
+  color-scheme: light; /* tells phones not to force a dark theme on the site */
+}
+
 body {
-  background: #F3F9F9;
-  color: #0D2A33;
+  background: #f3f9f9; /* page background: change this hex to change the color */
+  color: #0d2a33;
 }
