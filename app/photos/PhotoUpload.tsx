@@ -14,12 +14,14 @@ async function shrink(file: File): Promise<Blob> {
 
 export default function PhotoUpload() {
   const [msg, setMsg] = useState("");
+  const [done, setDone] = useState(false);
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget, fd = new FormData(form);
     const file = fd.get("file") as File;
     if (!file?.size) return setMsg("Choose a photo first.");
     try {
+      setDone(false);
       setMsg("Sending...");
       const blob = await shrink(file);
       const start = await fetch("/api/photos/start", {
@@ -34,6 +36,7 @@ export default function PhotoUpload() {
       if (!fin.ok) throw new Error();
       form.reset();
       setMsg("Thanks! Your photo will appear after we approve it.");
+      setDone(true);
     } catch {
       setMsg("Could not send that photo. Try a JPG or PNG.");
     }
@@ -46,6 +49,11 @@ export default function PhotoUpload() {
       <label className="flex items-start gap-2"><input name="consent" type="checkbox" className="mt-1" /> I give Anchor Management permission to post this photo and my first name on its website.</label>
       <button className="w-full rounded bg-teal-700 px-4 py-3 font-bold text-white">Send photo for approval</button>
       <p role="status" className="text-sm">{msg}</p>
+      {done && (
+        <p className="rounded bg-teal-50 p-3 font-bold">
+          <a href="/" className="text-teal-800 underline">← Back to reserve your gear</a>
+        </p>
+      )}
     </form>
   );
 }
