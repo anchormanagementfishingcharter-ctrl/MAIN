@@ -8,7 +8,8 @@ export default async function Photos() {
     .order("approved_at", { ascending: false }).limit(48);
   return (
     <main className="mx-auto max-w-4xl p-4">
-      <h1 className="text-3xl font-bold">Customer photos</h1>
+      <a href="/" className="font-bold text-teal-800 underline">← Back to reserve your gear</a>
+      <h1 className="mt-2 text-3xl font-bold">Customer photos</h1>
       <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {(data ?? []).map((p) => (
           <li key={p.path} className="overflow-hidden rounded border">
@@ -21,6 +22,7 @@ export default async function Photos() {
       <h2 id="share" className="mt-10 text-2xl font-bold">Share your catch</h2>
       <p className="mb-3 text-sm">We review every photo before it appears here.</p>
       <PhotoUpload />
+      <p className="mt-6 text-center"><a href="/" className="font-bold text-teal-800 underline">← Back to reserve your gear</a></p>
     </main>
   );
 }
