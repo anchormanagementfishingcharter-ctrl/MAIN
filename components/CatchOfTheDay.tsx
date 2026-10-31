@@ -1,13 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 
+const ROTATE_SECONDS = 8; // change this number to speed up or slow down the rotation
+
 type Item = { url: string; name: string; caption: string };
 
 /** Highlighted, rotating customer photo for the front page. Shows nothing until a photo is approved. */
 export default function CatchOfTheDay() {
   const [items, setItems] = useState<Item[]>([]);
   const [i, setI] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [hovering, setHovering] = useState(false); // pauses while a mouse or finger is on the photo
+  const [stopped, setStopped] = useState(false);   // the visitor pressed Pause
   const [broken, setBroken] = useState<string[]>([]); // photos that failed to load are skipped
 
   useEffect(() => {
@@ -19,20 +22,21 @@ export default function CatchOfTheDay() {
   }, []);
 
   const shown = items.filter((x) => !broken.includes(x.url));
+  const count = shown.length;
 
   useEffect(() => {
-    const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (shown.length < 2 || paused || calm) return;
-    const t = setInterval(() => setI((n) => (n + 1) % shown.length), 6000);
+    if (count < 2 || hovering || stopped) return;
+    const t = setInterval(() => setI((n) => (n + 1) % count), ROTATE_SECONDS * 1000);
     return () => clearInterval(t);
-  }, [shown.length, paused]);
+  }, [count, hovering, stopped]);
 
-  if (!shown.length) return null;
-  const c = shown[i % shown.length];
+  if (!count) return null;
+  const cur = i % count;
+  const c = shown[cur];
   return (
     <section
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)} onTouchEnd={() => setPaused(false)}
+      onMouseEnter={() => setHovering(true)} onMouseLeave={() => setHovering(false)}
+      onTouchStart={() => setHovering(true)} onTouchEnd={() => setHovering(false)}
       className="relative rounded-xl border-4 border-yellow-300 bg-teal-50 p-3 shadow-lg sm:p-4"
     >
       <span className="absolute left-5 top-5 z-10 rounded-full bg-yellow-300 px-3 py-1 text-xs font-extrabold text-slate-900 sm:left-6 sm:top-6 sm:px-4 sm:text-sm">★ Catch of the Day</span>
@@ -44,13 +48,16 @@ export default function CatchOfTheDay() {
         />
       </div>
       <p className="mt-2 text-center font-bold">{c.caption ? `${c.caption} · ` : ""}Angler: {c.name}</p>
-      {shown.length > 1 && (
-        <div className="flex justify-center">
+      {count > 1 && (
+        <div className="flex items-center justify-center gap-1">
           {shown.map((_, k) => (
-            <button key={k} onClick={() => setI(k)} aria-label={`Show catch ${k + 1}`} aria-current={k === i % shown.length} className="h-8 w-8">
-              <span className={`mx-auto block h-3 w-3 rounded-full ${k === i % shown.length ? "bg-teal-700" : "bg-slate-300"}`} />
+            <button key={k} onClick={() => setI(k)} aria-label={`Show catch ${k + 1}`} aria-current={k === cur} className="h-8 w-8">
+              <span className={`mx-auto block h-3 w-3 rounded-full ${k === cur ? "bg-teal-700" : "bg-slate-300"}`} />
             </button>
           ))}
+          <button onClick={() => setStopped((s) => !s)} className="ml-2 rounded border px-2 py-1 text-xs font-bold">
+            {stopped ? "▶ Play" : "❚❚ Pause"}
+          </button>
         </div>
       )}
       <p className="text-center"><a href="/photos" className="font-bold text-teal-800 underline">See all customer photos</a></p>
