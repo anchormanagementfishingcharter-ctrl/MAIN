@@ -52,6 +52,7 @@ export default function PhotoUpload() {
       {done && (
         <p className="rounded bg-teal-50 p-3 font-bold">
           <a href="/" className="text-teal-800 underline">← Back to reserve your gear</a>
+          <br /><a href="/photos" className="text-teal-800 underline">See customer photos</a>
         </p>
       )}
     </form>
