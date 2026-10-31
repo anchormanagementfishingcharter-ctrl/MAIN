@@ -53,7 +53,7 @@ export default function Reserve() {
   const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
 
-  useEffect(() => { fetch("/api/catalog").then((r) => r.json()).then((c: Catalog) => { setCat(c); setCity(c.zones[0]?.city ?? ""); }); }, []);
+  useEffect(() => { fetch("/api/catalog").then((r) => r.json()).then((c: Catalog) => { setCat(c); setCity(c.zones.find((z) => z.city === "Destin")?.city ?? c.zones[0]?.city ?? ""); // Destin first, else the first city in the list }); }, []);
   useEffect(() => {
     if (!start) { setAvailState("idle"); return; }
     setAvailState("loading");
@@ -224,4 +224,3 @@ export default function Reserve() {
     </div>
   );
 }
-
