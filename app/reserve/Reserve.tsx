@@ -159,8 +159,7 @@ export default function Reserve() {
           <h3 className="text-xl font-bold">Delivery information</h3>
           <p className="text-sm font-bold">We deliver and pick up your gear. Enter your delivery city and full address to continue.</p>
           <label className="mt-2 block font-bold">Delivery address (required)
-            <input className={`${input} ${addressOk ? "" : "border-4 border-red-700"}`} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 Beach Rd, Destin FL" autoComplete="street-address" /></label>
-          <label className="mt-2 block font-bold">Delivery city
+            <input className={`${input} ${addressOk ? "" : "border-4 border-red-700"}`} value={address} ...
             <select className={input} value={city} onChange={(e) => setCity(e.target.value)}>
               {cat.zones.map((z) => <option key={z.city} value={z.city}>{z.city} ({money(z.fee_cents)})</option>)}
             </select></label>
