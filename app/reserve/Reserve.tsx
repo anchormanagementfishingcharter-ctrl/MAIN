@@ -12,6 +12,8 @@ type Catalog = {
 };
 const money = (c: number) => new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(c / 100);
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+/** 2026-11-01 -> 11/01/2026. Change the slashes in the template below to change the look. */
+const pretty = (d: string) => { const [y, m, day] = d.split("-"); return `${m}/${day}/${y}`; };
 const card = "rounded-xl border bg-white p-4 shadow-sm";
 const input = "w-full rounded border p-2";
 
@@ -42,6 +44,7 @@ export default function Reserve() {
   const [start, setStart] = useState(""), [end, setEnd] = useState("");
   const [one, setOne] = useState(false);
   const [avail, setAvail] = useState<Record<string, number>>({});
+  const [availState, setAvailState] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [bait, setBait] = useState<Record<string, number>>({});
   const [city, setCity] = useState(""), [address, setAddress] = useState("");
   const [me, setMe] = useState({ name: "", email: "", phone: "" });
@@ -52,8 +55,12 @@ export default function Reserve() {
 
   useEffect(() => { fetch("/api/catalog").then((r) => r.json()).then((c: Catalog) => { setCat(c); setCity(c.zones[0]?.city ?? ""); }); }, []);
   useEffect(() => {
-    if (!start) return;
-    fetch(`/api/availability?start=${start}&end=${end || start}`).then((r) => (r.ok ? r.json() : {})).then(setAvail);
+    if (!start) { setAvailState("idle"); return; }
+    setAvailState("loading");
+    fetch(`/api/availability?start=${start}&end=${end || start}`)
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((d) => { setAvail(d); setAvailState("ok"); })
+      .catch(() => { setAvail({}); setAvailState("error"); });
   }, [start, end]);
 
   if (!cat) return <p className="p-4">Loading...</p>;
@@ -104,7 +111,13 @@ export default function Reserve() {
               <b className="text-lg">{p.name}</b>
               <span className="block font-bold text-teal-700">{money(p.dailyCents)}/day · {money(p.weeklyCents)}/week</span>
               <span className="block text-sm">{p.includes}</span>
-              {start && <span className={`mt-1 block text-sm font-bold ${soldOut(p.id) ? "text-red-700" : ""}`}>{soldOut(p.id) ? "Sold out for these dates" : avail[p.id] !== undefined ? `${avail[p.id]} available` : ""}</span>}
+              <span className={`mt-1 block text-sm font-bold ${soldOut(p.id) || availState === "error" ? "text-red-700" : ""}`}>
+                {!start ? "Pick dates to see availability"
+                  : availState === "loading" ? "Checking availability..."
+                  : availState === "error" ? "Availability could not be loaded"
+                  : soldOut(p.id) ? "Sold out for these dates"
+                  : avail[p.id] !== undefined ? `${avail[p.id]} available` : ""}
+              </span>
             </button>
           ))}
         </div>
@@ -129,8 +142,8 @@ export default function Reserve() {
                 className={`aspect-square rounded disabled:line-through disabled:opacity-30 ${edge ? "bg-teal-700 font-bold text-white" : within ? "bg-teal-100" : ""}`}>{i + 1}</button>;
             })}
           </div>
-          <p className="mt-2 text-sm">{start ? (end ? `${start} to ${end}` : `Start: ${start}. Now pick an end date.`) : `Select a start date, then an end date (up to ${maxDays} days).`}</p>
-          <p className="text-sm">Same-day rentals are not available. The earliest date you can pick is {earliest}.</p>
+          <p className="mt-2 text-sm">{start ? (end ? `${pretty(start)} to ${pretty(end)}` : `Start: ${pretty(start)}. Now pick an end date.`) : `Select a start date, then an end date (up to ${maxDays} days).`}</p>
+          <p className="text-sm">Same-day rentals are not available. The earliest date you can pick is {pretty(earliest)}.</p>
         </div>
         <div>
           <h2 className="text-2xl font-bold">3. Add-ons and delivery</h2>
