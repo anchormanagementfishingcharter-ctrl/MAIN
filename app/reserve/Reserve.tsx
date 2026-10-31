@@ -97,7 +97,7 @@ export default function Reserve() {
         bait: Object.entries(bait).filter(([, q]) => q > 0).map(([id, qty]) => ({ id, qty })),
         city, address: address.trim(), customer: me, signaturePng: sig!, agreed: true,
       });
-    } catch (e: any) { setMsg(e.message); setBusy(false); setOpen(false); }
+    } catch (e: any) { setMsg(e.message); setBusy(false); }
   }
 
   return (
@@ -216,6 +216,7 @@ export default function Reserve() {
             <SignaturePad onChange={setSig} />
             <label className="mt-3 flex items-start gap-2"><input type="checkbox" className="mt-1" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} /> I have read and agree to the rental agreement and waiver.</label>
             <p className="mt-2 text-sm">You pay {money(total)} now. A refundable {money(cat.rental.depositCents)} deposit hold goes on your card on delivery day and is released when we pick up the gear.</p>
+            <p role="alert" className="mt-2 font-bold text-red-700">{msg}</p>
             <button type="button" disabled={!sig || !agreed || busy} onClick={pay} className="mt-3 w-full rounded-lg bg-teal-700 px-5 py-3 font-bold text-white disabled:opacity-45">{busy ? "Opening secure payment..." : "Sign and pay"}</button>
             <button type="button" onClick={() => setOpen(false)} className="mt-2 w-full rounded-lg border px-5 py-3 font-bold">Back</button>
           </div>
