@@ -154,12 +154,13 @@ export default function Reserve() {
               {a.name} ({money(a.dailyCents)}/day){soldOut(a.id) && " · sold out for these dates"}
             </label>
           ))}
-          <div className={`relative mt-6 rounded-xl border-4 bg-teal-50 p-4 ${pkg && days && !addressOk ? "border-red-700 ring-4 ring-red-200" : "border-yellow-300"}`}>
+          <div className={`relative mt-6 rounded-xl border-4 bg-teal-50 p-4 border-yellow-300`}>
           <span className="absolute -top-3 right-3 rounded-full bg-red-700 px-3 py-0.5 text-xs font-extrabold tracking-wide text-white">REQUIRED</span>
           <h3 className="text-xl font-bold">Delivery information</h3>
           <p className="text-sm font-bold">We deliver and pick up your gear. Enter your delivery city and full address to continue.</p>
           <label className="mt-2 block font-bold">Delivery address (required)
-            <input className={`${input} ${addressOk ? "" : "border-4 border-red-700"}`} value={address} ...
+            <input className={input} value={address} onChange={(e) => setAddress(e.target.value)} placeholder="123 Beach Rd, Destin FL" autoComplete="street-address" /></label>
+          <label className="mt-2 block font-bold">Delivery city
             <select className={input} value={city} onChange={(e) => setCity(e.target.value)}>
               {cat.zones.map((z) => <option key={z.city} value={z.city}>{z.city} ({money(z.fee_cents)})</option>)}
             </select></label>
@@ -223,3 +224,4 @@ export default function Reserve() {
     </div>
   );
 }
+
