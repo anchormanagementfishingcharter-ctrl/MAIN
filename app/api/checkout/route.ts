@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { db, money } from "@/lib/notify";
 import { stripe } from "@/lib/stripe";
-import { nights, rentalCents } from "@/lib/pricing";
+import { nights, rentalCents, earliestBookable } from "@/lib/pricing";
 import { buildAgreementPdf } from "@/lib/agreementPdf";
 import { TERMS_VERSION } from "@/lib/terms";
 
@@ -34,8 +34,8 @@ export async function POST(req: Request) {
   const { data: rental } = await db.from("settings").select("value").eq("key", "rental").single();
   const maxDays = rental?.value?.max_days ?? 7;
   const deposit = rental?.value?.deposit_cents ?? 10000;
-  const today = new Date().toISOString().slice(0, 10);
-  if (b.start < today || b.end < b.start) return fail(400, "Please pick valid dates.");
+  const earliest = earliestBookable();
+  if (b.start < earliest || b.end < b.start) return fail(400, "Please pick valid dates. Same-day rentals are not available.");
   if (days > maxDays) return fail(400, `Rentals can be up to ${maxDays} days.`);
 
   const ids = b.items.map((i) => i.productId);
