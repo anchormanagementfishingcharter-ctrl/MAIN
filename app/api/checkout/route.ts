@@ -24,6 +24,10 @@ const Body = z.object({
 
 const fail = (status: number, error: string) => NextResponse.json({ error }, { status });
 
+/** While testing, set SHOW_ERRORS=1 in Vercel to see the real reason in the red message. Remove it before going live. */
+const detail = (e: any, step = "") =>
+  process.env.SHOW_ERRORS === "1" ? ` [${step ? `${step}: ` : ""}${e?.message ?? e}]` : "";
+
 export async function POST(req: Request) {
   const parsed = Body.safeParse(await req.json().catch(() => null));
   if (!parsed.success) return fail(400, "Please check the form and try again.");
@@ -70,7 +74,10 @@ export async function POST(req: Request) {
   const { data: customer, error: cErr } = await db.from("customers")
     .upsert({ email: b.customer.email.toLowerCase(), name: b.customer.name, phone: b.customer.phone }, { onConflict: "email" })
     .select().single();
-  if (cErr || !customer) return fail(500, "Something went wrong. Please try again.");
+  if (cErr || !customer) {
+    console.error("customer save failed", cErr);
+    return fail(500, "Something went wrong saving your details." + detail(cErr, "saving customer"));
+  }
 
   // Check stock and hold it for 35 minutes, in one locked database step.
   const { data: bookingId, error: rErr } = await db.rpc("reserve_booking", {
@@ -84,9 +91,12 @@ export async function POST(req: Request) {
   });
   if (rErr) {
     const m = /SOLD_OUT:(.+)/.exec(rErr.message);
-    return fail(409, m ? `Sorry, ${m[1]} is no longer available for those dates.` : "Something went wrong. Please try again.");
+    if (m) return fail(409, `Sorry, ${m[1]} is no longer available for those dates.`);
+    console.error("reserve_booking failed", rErr);
+    return fail(500, "Something went wrong reserving the gear." + detail(rErr, "reserve_booking"));
   }
 
+  let step = "creating the agreement PDF";
   try {
     // Signed agreement saved as a PDF in private storage
     const ip = (req.headers.get("x-forwarded-for") ?? "unknown").split(",")[0].trim();
@@ -94,6 +104,7 @@ export async function POST(req: Request) {
       name: b.customer.name, ip, signedAt: new Date(), bookingId,
       signaturePng: Buffer.from(b.signaturePng.split(",")[1], "base64"),
     });
+    step = "saving the agreement to storage (is the contracts bucket there?)";
     const path = `${bookingId}.pdf`;
     const up = await db.storage.from("contracts").upload(path, pdf, { contentType: "application/pdf" });
     if (up.error) throw up.error;
@@ -102,9 +113,12 @@ export async function POST(req: Request) {
       pdf_path: path, ip, user_agent: req.headers.get("user-agent") ?? "",
     });
 
+    step = "creating the Stripe customer (check STRIPE_SECRET_KEY)";
     // Stripe: charge the rental now and save the card for the deposit hold later
     const sc = await stripe.customers.create({ email: b.customer.email, name: b.customer.name, phone: b.customer.phone });
+    step = "creating the Stripe checkout page (check SITE_URL, it must start with https://)";
     const site = process.env.SITE_URL!;
+    if (!/^https?:\/\//.test(site ?? "")) throw new Error("SITE_URL is missing or does not start with https://");
     const session = await stripe.checkout.sessions.create(
       {
         mode: "payment", customer: sc.id, client_reference_id: bookingId,
@@ -124,8 +138,8 @@ export async function POST(req: Request) {
     await db.from("bookings").update({ stripe_customer_id: sc.id, stripe_session_id: session.id }).eq("id", bookingId);
     return NextResponse.json({ url: session.url });
   } catch (e) {
-    console.error("checkout failed", e);
+    console.error(`checkout failed while ${step}:`, e);
     await db.from("bookings").update({ status: "cancelled" }).eq("id", bookingId); // frees the stock
-    return fail(500, "Something went wrong. Please try again.");
+    return fail(500, "Something went wrong. Please try again." + detail(e, step));
   }
 }
