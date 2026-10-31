@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
   const since = new Date(Date.now() - 3600_000).toISOString();
   const { count } = await db.from("photos").select("id", { count: "exact", head: true }).eq("ip", ip).gte("created_at", since);
-  if ((count ?? 0) >= 5) return Response.json({ error: "Too many photos right now. Please try again later." }, { status: 429 });
+  if ((count ?? 0) >= 10) return Response.json({ error: "Too many photos right now. Please try again later." }, { status: 429 });
 
   const id = crypto.randomUUID(), path = `${id}.jpg`;
   const { data, error } = await db.storage.from("photos").createSignedUploadUrl(path);
