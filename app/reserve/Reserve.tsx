@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { nights, rentalCents } from "@/lib/pricing";
+import { nights, rentalCents, earliestBookable } from "@/lib/pricing";
 import { TERMS } from "@/lib/terms";
 import { submitReservation } from "@/lib/submitReservation";
 
@@ -80,7 +80,7 @@ export default function Reserve() {
     if (nights(start, d) > maxDays) { setMsg(`Rentals can be up to ${maxDays} days.`); return; }
     setEnd(d); setMsg("");
   };
-  const first = month.getDay(), count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate(), today = iso(new Date());
+  const first = month.getDay(), count = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate(), earliest = earliestBookable();
 
   async function pay() {
     setBusy(true); setMsg("");
@@ -125,11 +125,12 @@ export default function Reserve() {
             {Array.from({ length: count }, (_, i) => {
               const d = iso(new Date(month.getFullYear(), month.getMonth(), i + 1));
               const edge = d === start || d === end, within = !!start && !!end && d > start && d < end;
-              return <button key={d} type="button" disabled={d < today} onClick={() => pick(d)}
+              return <button key={d} type="button" disabled={d < earliest} onClick={() => pick(d)}
                 className={`aspect-square rounded disabled:line-through disabled:opacity-30 ${edge ? "bg-teal-700 font-bold text-white" : within ? "bg-teal-100" : ""}`}>{i + 1}</button>;
             })}
           </div>
           <p className="mt-2 text-sm">{start ? (end ? `${start} to ${end}` : `Start: ${start}. Now pick an end date.`) : `Select a start date, then an end date (up to ${maxDays} days).`}</p>
+          <p className="text-sm">Same-day rentals are not available. The earliest date you can pick is {earliest}.</p>
         </div>
         <div>
           <h2 className="text-2xl font-bold">3. Add-ons and delivery</h2>
