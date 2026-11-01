@@ -10,3 +10,9 @@ export const TERMS = [
   "6. Minors must be supervised by an adult at all times.",
   "7. Renter agrees to sign electronically and that this signature is legally binding.",
 ];
+
+// The exact wording shown next to the text-message checkbox. It is saved with each booking as proof of consent.
+export const SMS_CONSENT_TEXT =
+  "I agree to receive text messages from Anchor Management Destin at the mobile number above about my reservation, " +
+  "such as booking confirmation and delivery and pickup updates. Message frequency varies. Message and data rates may apply. " +
+  "Reply STOP to cancel and HELP for help. Consent is not a condition of renting or buying.";
