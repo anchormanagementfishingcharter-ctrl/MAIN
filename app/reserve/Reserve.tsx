@@ -4,7 +4,7 @@ import { nights, rentalCents, earliestBookable } from "@/lib/pricing";
 import { TERMS } from "@/lib/terms";
 import { submitReservation } from "@/lib/submitReservation";
 
-type Product = { id: string; name: string; dailyCents: number; weeklyCents: number; isAddon: boolean; includes: string };
+type Product = { id: string; name: string; dailyCents: number; weeklyCents: number; isAddon: boolean; includes: string; includesList: string[] };
 type Catalog = {
   products: Product[]; zones: { city: string; fee_cents: number }[];
   bait: { id: string; name: string; price_cents: number; unit: string; good_for: string }[];
@@ -110,7 +110,7 @@ export default function Reserve() {
               className={`rounded-lg border-2 p-3 text-left disabled:opacity-50 ${pkg === p.id ? "border-yellow-300 bg-teal-50 ring-2 ring-teal-700" : "border-slate-200"}`}>
               <b className="text-lg">{p.name}</b>
               <span className="block font-bold text-teal-700">{money(p.dailyCents)}/day · {money(p.weeklyCents)}/week</span>
-              <span className="block text-sm">{p.includes}</span>
+              <ul className="mt-1 list-disc pl-5 text-sm">{p.includesList.map((x) => <li key={x}>{x}</li>)}</ul>
               <span className={`mt-1 block text-sm font-bold ${soldOut(p.id) || availState === "error" ? "text-red-700" : ""}`}>
                 {!start ? "Pick dates to see availability"
                   : availState === "loading" ? "Checking availability..."
