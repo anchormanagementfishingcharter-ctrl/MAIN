@@ -40,7 +40,7 @@ export default function CatchOfTheDay() {
       className="relative rounded-xl border-4 border-yellow-300 bg-teal-50 p-3 shadow-lg sm:p-4"
     >
       <span className="absolute left-5 top-5 z-10 rounded-full bg-yellow-300 px-3 py-1 text-xs font-extrabold text-slate-900 sm:left-6 sm:top-6 sm:px-4 sm:text-sm">★ Catch of the Day</span>
-      <div className="aspect-[4/3] max-h-[460px] w-full overflow-hidden rounded-lg bg-slate-900">
+      <div className="aspect-[4/3] max-h-[460px] w-full overflow-hidden rounded-lg bg-[#e6f4f4]">
         <img
           key={c.url} src={c.url} alt={c.caption || "Customer catch"}
           className="h-full w-full object-contain" decoding="async"
