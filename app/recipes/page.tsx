@@ -14,7 +14,7 @@ const RECIPES = [
     need: ["1 lb whiting fillets", "1 cup cornmeal, 1/2 cup flour, 1 tbsp Cajun seasoning", "Oil for frying, lemon wedges"],
     steps: ["Mix cornmeal, flour and seasoning. Pat fish dry and dredge it.", "Deep fry in 350°F oil 3 minutes or until golden.", "Drain on a rack and serve with lemon."] },
   { name: "Grilled Spanish Mackerel", meta: "25 minutes · serves 2 to 3",
-    need: ["2 mackerel fillets, eaten the same day", "3 tbsp olive oil, juice of 1 lemon, 2 cloves garlic, oregano, salt"],
+    need: ["2 mackerel fillets", "3 tbsp olive oil, juice of 1 lemon, 2 cloves garlic, oregano, salt"],
     steps: ["Marinate fillets 15 minutes in oil, lemon, garlic and oregano.", "Grill over high heat, skin side down, 4 minutes.", "Flip and cook 2 to 3 minutes more. Serve right away."] },
 ];
 
