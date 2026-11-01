@@ -10,7 +10,6 @@ export default function CatchOfTheDay() {
   const [items, setItems] = useState<Item[]>([]);
   const [i, setI] = useState(0);
   const [hovering, setHovering] = useState(false); // pauses while a mouse or finger is on the photo
-  const [stopped, setStopped] = useState(false);   // the visitor pressed Pause
   const [broken, setBroken] = useState<string[]>([]); // photos that failed to load are skipped
 
   useEffect(() => {
@@ -25,10 +24,10 @@ export default function CatchOfTheDay() {
   const count = shown.length;
 
   useEffect(() => {
-    if (count < 2 || hovering || stopped) return;
+    if (count < 2 || hovering) return;
     const t = setInterval(() => setI((n) => (n + 1) % count), ROTATE_SECONDS * 1000);
     return () => clearInterval(t);
-  }, [count, hovering, stopped]);
+  }, [count, hovering]);
 
   if (!count) return null;
   const cur = i % count;
@@ -55,9 +54,6 @@ export default function CatchOfTheDay() {
               <span className={`mx-auto block h-3 w-3 rounded-full ${k === cur ? "bg-teal-700" : "bg-slate-300"}`} />
             </button>
           ))}
-          <button onClick={() => setStopped((s) => !s)} className="ml-2 rounded border px-2 py-1 text-xs font-bold">
-            {stopped ? "▶ Play" : "❚❚ Pause"}
-          </button>
         </div>
       )}
       <p className="text-center"><a href="/photos" className="font-bold text-teal-800 underline">See all customer photos</a></p>
