@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { nights, rentalCents, earliestBookable } from "@/lib/pricing";
-import { TERMS } from "@/lib/terms";
+import { TERMS, SMS_CONSENT_TEXT } from "@/lib/terms";
 import { submitReservation } from "@/lib/submitReservation";
 
 type Product = { id: string; name: string; dailyCents: number; weeklyCents: number; isAddon: boolean; includes: string; includesList: string[] };
@@ -49,6 +49,7 @@ export default function Reserve() {
   const [city, setCity] = useState(""), [address, setAddress] = useState("");
   const [me, setMe] = useState({ name: "", email: "", phone: "" });
   const [open, setOpen] = useState(false), [agreed, setAgreed] = useState(false);
+  const [smsOk, setSmsOk] = useState(false);
   const [sig, setSig] = useState<string | null>(null);
   const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
@@ -95,7 +96,7 @@ export default function Reserve() {
       await submitReservation({
         items: chosen.map((p) => ({ productId: p.id, qty: 1 })), start, end,
         bait: Object.entries(bait).filter(([, q]) => q > 0).map(([id, qty]) => ({ id, qty })),
-        city, address: address.trim(), customer: me, signaturePng: sig!, agreed: true,
+        city, address: address.trim(), customer: me, signaturePng: sig!, agreed: true, smsConsent: smsOk,
       });
     } catch (e: any) { setMsg(e.message); setBusy(false); }
   }
@@ -202,7 +203,7 @@ export default function Reserve() {
               <li key={label} className={ok ? "text-teal-800" : "text-red-700"}>{ok ? "✓" : "✗"} {label}</li>
             ))}
           </ul>
-          <button type="button" disabled={!ready} onClick={() => { setAgreed(false); setSig(null); setOpen(true); }}
+          <button type="button" disabled={!ready} onClick={() => { setAgreed(false); setSmsOk(false); setSig(null); setOpen(true); }}
             className="mt-1 w-full rounded-lg bg-yellow-300 px-5 py-3 text-base font-bold text-slate-900 disabled:opacity-45">Review and sign agreement</button>
         </div>
       </section>
@@ -215,6 +216,12 @@ export default function Reserve() {
             <p className="mt-3 font-bold">Sign below, {me.name}</p>
             <SignaturePad onChange={setSig} />
             <label className="mt-3 flex items-start gap-2"><input type="checkbox" className="mt-1" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} /> I have read and agree to the rental agreement and waiver.</label>
+            <label className="mt-3 flex items-start gap-2 rounded border border-dashed p-2 text-sm">
+              <input type="checkbox" className="mt-1" checked={smsOk} onChange={(e) => setSmsOk(e.target.checked)} />
+              <span><b>Optional: text me updates.</b> {SMS_CONSENT_TEXT}{" "}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline">Privacy Policy</a>{" · "}
+                <a href="/sms-terms" target="_blank" rel="noopener noreferrer" className="underline">SMS Terms</a></span>
+            </label>
             <p className="mt-2 text-sm">You pay {money(total)} now. A refundable {money(cat.rental.depositCents)} deposit hold goes on your card on delivery day and is released when we pick up the gear.</p>
             <p role="alert" className="mt-2 font-bold text-red-700">{msg}</p>
             <button type="button" disabled={!sig || !agreed || busy} onClick={pay} className="mt-3 w-full rounded-lg bg-teal-700 px-5 py-3 font-bold text-white disabled:opacity-45">{busy ? "Opening secure payment..." : "Sign and pay"}</button>
