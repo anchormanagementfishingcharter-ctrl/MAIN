@@ -21,6 +21,11 @@ export const money = (cents: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
 export const day = (d: string) =>
   new Date(d + "T12:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric" });
+/** "(850) 555-1234" -> "+18505551234". Returns null if it is not a US number. */
+const toE164 = (raw: string) => {
+  const d = String(raw ?? "").replace(/\D/g, "");
+  return d.length === 10 ? `+1${d}` : d.length === 11 && d.startsWith("1") ? `+${d}` : null;
+};
 export const prettyPhone = (e164: string) =>
   e164.replace(/^\+1(\d{3})(\d{3})(\d{4})$/, "($1) $2-$3");
 
@@ -104,15 +109,27 @@ export async function runNotifications(b: any) {
       if (error) throw error;
       return true;
     },
+    // Only for customers who ticked the text-message box. Twilio itself blocks anyone who replied STOP.
+    customerSms: async () => {
+      if (!b.sms_consent || b.customer_sms_sent) return true;
+      const to = toE164(c.phone);
+      if (!to) throw new Error("Customer phone is not a valid US number");
+      await sms.messages.create({
+        from: process.env.TWILIO_FROM!, to,
+        body: `Anchor Management Destin: your reservation is confirmed for ${s.when}. We will deliver to ${s.where}. Reply STOP to opt out, HELP for help. Msg & data rates may apply.`,
+      });
+      return true;
+    },
   };
 
-  const [e, t, r] = await Promise.allSettled([tasks.email(), tasks.sms(), tasks.receipt()]);
-  [e, t, r].forEach((x, i) => x.status === "rejected" && console.error(["email", "sms", "receipt"][i], x.reason));
+  const [e, t, r, cs] = await Promise.allSettled([tasks.email(), tasks.sms(), tasks.receipt(), tasks.customerSms()]);
+  [e, t, r, cs].forEach((x, i) => x.status === "rejected" && console.error(["email", "sms", "receipt", "customer text"][i], x.reason));
 
   await db.from("bookings").update({
     email_alert_sent: b.email_alert_sent || e.status === "fulfilled",
     sms_alert_sent: b.sms_alert_sent || t.status === "fulfilled",
     receipt_sent: b.receipt_sent || r.status === "fulfilled",
+    customer_sms_sent: b.customer_sms_sent || (!!b.sms_consent && cs.status === "fulfilled"),
     alert_attempts: (b.alert_attempts ?? 0) + 1,
   }).eq("id", b.id);
 }
