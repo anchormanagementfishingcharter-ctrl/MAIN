@@ -15,6 +15,7 @@ export async function GET() {
     products: (products.data ?? []).map((p: any) => ({
       id: p.id, name: p.name, dailyCents: p.daily_cents, weeklyCents: p.weekly_cents, isAddon: p.is_addon,
       includes: p.product_parts.map((x: any) => `${x.qty > 1 ? `${x.qty} x ` : ""}${x.inventory_items.name}`).join(", "),
+      includesList: p.product_parts.map((x: any) => `${x.qty > 1 ? `${x.qty} x ` : ""}${x.inventory_items.name}`),
     })),
     zones: zones.data ?? [], bait: bait.data ?? [],
     rental: { maxDays: rental.data?.value?.max_days ?? 7, depositCents: rental.data?.value?.deposit_cents ?? 10000 },
