@@ -3,7 +3,7 @@ import FishingMap from "@/components/FishingMap";
 import Reserve from "./reserve/Reserve";
 
 // Put your logo file at public/logo.png
-const links = [["/recipes", "Recipes & cooking videos"], ["/howto", "How-to videos"], ["/photos", "Customer photos & share your catch"]];
+const links = [["/recipes", "Recipes & cooking videos"], ["/howto", "How-to videos"], ["/photos", "Customer photos"], ["/photos/share", "Share your catch"]];
 
 export default function Home() {
   return (
@@ -35,7 +35,7 @@ export default function Home() {
         <p className="mt-2"><a className="font-bold text-teal-800 underline" href="https://myfwc.com/license/recreational/do-i-need-a-license/" target="_blank" rel="noopener noreferrer">Do I need a license? (FWC)</a><br />
           <a className="font-bold text-teal-800 underline" href="https://myfwc.com/license/recreational/saltwater-fishing/" target="_blank" rel="noopener noreferrer">Saltwater fishing licenses, fees and rules (FWC)</a></p>
       </section>
-      <footer className="pb-6 text-center text-sm">Fishing gear rentals · Destin, Florida · <a href="/admin/bookings" className="underline">Admin login</a></footer>
+      <footer className="pb-6 text-center text-sm">Fishing gear rentals · Destin, Florida · <a href="/privacy" className="underline">Privacy Policy</a> · <a href="/sms-terms" className="underline">SMS Terms</a> · <a href="/admin/bookings" className="underline">Admin login</a></footer>
     </main>
   );
 }
