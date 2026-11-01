@@ -4,16 +4,16 @@ import VideoGrid from "@/components/VideoGrid";
 export const revalidate = 60;
 
 const RECIPES = [
-  { name: "Pan-seared pompano with lemon butter", meta: "20 minutes · serves 2",
+  { name: "Pan-Seared Pompano with Lemon Butter", meta: "20 minutes · serves 2",
     need: ["2 pompano fillets, skin on", "2 tbsp butter, 1 tbsp olive oil", "Salt, pepper, 1 lemon, 2 cloves garlic, parsley"],
     steps: ["Pat fillets dry and season both sides.", "Heat oil in a skillet over medium-high. Cook skin side down 3 to 4 minutes until crisp.", "Flip, add butter and garlic, and baste 2 minutes.", "Finish with lemon juice and parsley."] },
-  { name: "Blackened redfish", meta: "15 minutes · serves 2",
+  { name: "Blackened Redfish", meta: "15 minutes · serves 2",
     need: ["2 redfish fillets", "2 tbsp melted butter", "Blackening mix: paprika, garlic powder, onion powder, cayenne, thyme, salt, pepper"],
     steps: ["Brush fillets with butter and coat with the spice mix.", "Heat a cast-iron skillet until very hot. Open a window or run the fan.", "Sear 2 to 3 minutes per side until the crust is dark and the fish flakes."] },
-  { name: "Crispy fried whiting", meta: "25 minutes · serves 4",
+  { name: "Crispy Fried Whiting", meta: "25 minutes · serves 4",
     need: ["1 lb whiting fillets", "1 cup cornmeal, 1/2 cup flour, 1 tbsp Cajun seasoning", "Oil for frying, lemon wedges"],
-    steps: ["Mix cornmeal, flour and seasoning. Pat fish dry and dredge it.", "Fry in 350°F oil 3 minutes per side until golden.", "Drain on a rack and serve with lemon."] },
-  { name: "Grilled Spanish mackerel", meta: "25 minutes · serves 2 to 3",
+    steps: ["Mix cornmeal, flour and seasoning. Pat fish dry and dredge it.", "Deep fry in 350°F oil 3 minutes or until golden.", "Drain on a rack and serve with lemon."] },
+  { name: "Grilled Spanish Mackerel", meta: "25 minutes · serves 2 to 3",
     need: ["2 mackerel fillets, eaten the same day", "3 tbsp olive oil, juice of 1 lemon, 2 cloves garlic, oregano, salt"],
     steps: ["Marinate fillets 15 minutes in oil, lemon, garlic and oregano.", "Grill over high heat, skin side down, 4 minutes.", "Flip and cook 2 to 3 minutes more. Serve right away."] },
 ];
