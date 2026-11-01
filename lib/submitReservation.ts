@@ -7,6 +7,7 @@ export type ReservationPayload = {
   customer: { name: string; email: string; phone: string };
   signaturePng: string;                             // canvas.toDataURL("image/png")
   agreed: true;
+  smsConsent: boolean;                              // the optional text-message checkbox
 };
 
 export async function submitReservation(payload: ReservationPayload) {
