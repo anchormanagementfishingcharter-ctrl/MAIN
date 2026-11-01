@@ -15,7 +15,7 @@ export async function GET(req: Request) {
     .eq("status", "confirmed")
     .lt("confirmed_at", fiveMinAgo) // leave brand-new bookings to the webhook
     .lt("alert_attempts", 5)
-    .or("email_alert_sent.eq.false,sms_alert_sent.eq.false,receipt_sent.eq.false");
+    .or("email_alert_sent.eq.false,sms_alert_sent.eq.false,receipt_sent.eq.false,and(sms_consent.eq.true,customer_sms_sent.eq.false)");
 
   for (const b of stuck ?? []) await runNotifications(b);
   return Response.json({ retried: stuck?.length ?? 0 });
