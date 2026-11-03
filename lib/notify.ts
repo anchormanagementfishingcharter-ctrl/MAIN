@@ -145,12 +145,17 @@ export async function newBookingCount() {
 /** Quick alert to the owner by email and text (used for problems, like a failed deposit hold). */
 export async function alertOwner(subject: string, text: string, opts: { sms?: boolean } = {}) {
   const { phones, emails } = await getRecipients();
-  await Promise.allSettled([
-    resend.emails.send({ from: process.env.ALERT_FROM_EMAIL!, to: emails, subject, text }),
-    ...(opts.sms === false ? [] : phones).map((to) =>
-      sms.messages.create({ from: process.env.TWILIO_FROM!, to, body: `${subject}. ${text}`.slice(0, 300) })
-    ),
-  ]);
+  const jobs: Promise<unknown>[] = [
+    (async () => {
+      const { error } = await resend.emails.send({ from: process.env.ALERT_FROM_EMAIL!, to: emails, subject, text });
+      if (error) throw error;
+    })(),
+    ...(opts.sms === false ? [] : phones).map(async (to) => {
+      await sms.messages.create({ from: process.env.TWILIO_FROM!, to, body: `${subject}. ${text}`.slice(0, 300) });
+    }),
+  ];
+  // One failing must not block the other. Failures show up in the Vercel logs.
+  (await Promise.allSettled(jobs)).forEach((r) => r.status === "rejected" && console.error("owner alert failed:", r.reason));
 }
 
 /** A customer photo is waiting for approval. Always emails; texts only when the queue goes from empty
@@ -167,4 +172,27 @@ export async function alertPhoto(pendingCount: number) {
 export async function pendingPhotoCount() {
   const { count } = await db.from("photos").select("id", { count: "exact", head: true }).eq("status", "pending");
   return count ?? 0;
+}
+
+/** Sends one test email and one test text and reports exactly what happened. Used by /api/test-alert. */
+export async function sendTestAlerts() {
+  const { phones, emails } = await getRecipients();
+  const result: Record<string, unknown> = {
+    emailTo: emails, textTo: phones,
+    from: process.env.ALERT_FROM_EMAIL ?? "MISSING: add ALERT_FROM_EMAIL in Vercel",
+    resendKey: process.env.RESEND_API_KEY ? "set" : "MISSING: add RESEND_API_KEY in Vercel",
+    twilioKeys: process.env.TWILIO_ACCOUNT_SID && process.env.TWILIO_AUTH_TOKEN && process.env.TWILIO_FROM ? "set" : "MISSING: add the TWILIO settings in Vercel",
+  };
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.ALERT_FROM_EMAIL!, to: emails,
+      subject: "Test alert from your website", text: "If you can read this, email alerts work.",
+    });
+    result.email = error ? { failed: error.message } : { sent: true, id: data?.id };
+  } catch (e: any) { result.email = { failed: e?.message ?? String(e) }; }
+  try {
+    await sms.messages.create({ from: process.env.TWILIO_FROM!, to: phones[0], body: "Test alert from your website. Text alerts work." });
+    result.text = { sent: true };
+  } catch (e: any) { result.text = { failed: e?.message ?? String(e) }; }
+  return result;
 }
