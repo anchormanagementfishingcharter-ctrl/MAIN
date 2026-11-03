@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { CANCELLATION_POLICY } from "./terms";
 import { Resend } from "resend";
 import twilio from "twilio";
 
@@ -103,6 +104,7 @@ export async function runNotifications(b: any) {
           agreement ? `Your signed rental agreement: ${agreement}` : "",
           `How-to videos (tie a hook, rinse your gear, reel basics): ${process.env.SITE_URL}/howto`,
           `Florida fishing license info: https://myfwc.com/license/recreational/do-i-need-a-license/`, ``,
+          `Cancellation policy: ${CANCELLATION_POLICY.join(" ")}`, ``,
           `Questions? Call or text ${ownerPhone}.`, ``, `Anchor Management Destin`,
         ].filter((l) => l !== "").join("\n"),
       });
