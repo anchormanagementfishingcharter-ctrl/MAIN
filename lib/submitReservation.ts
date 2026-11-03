@@ -15,6 +15,6 @@ export async function submitReservation(payload: ReservationPayload) {
     method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error ?? "Something went wrong. Please try again.");
+  if (!res.ok) throw new Error(data.error ?? `Something went wrong (server error ${res.status}). Please try again.`);
   window.location.href = data.url; // Stripe's secure payment page
 }
