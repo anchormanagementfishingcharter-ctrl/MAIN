@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { nights, rentalCents, earliestBookable } from "@/lib/pricing";
-import { TERMS, SMS_CONSENT_TEXT } from "@/lib/terms";
+import { TERMS, SMS_CONSENT_TEXT, CANCELLATION_POLICY } from "@/lib/terms";
 import { submitReservation } from "@/lib/submitReservation";
 
 type Product = { id: string; name: string; dailyCents: number; weeklyCents: number; isAddon: boolean; includes: string; includesList: string[] };
@@ -196,6 +196,7 @@ export default function Reserve() {
             <div className="flex justify-between border-b border-dashed py-1"><span>Refundable deposit hold</span><span>{money(cat.rental.depositCents)}</span></div>
             <div className="flex justify-between py-1 text-lg font-extrabold"><span>Due today</span><span>{money(total)}</span></div></>}
           <p role="alert" className="min-h-6 font-bold text-red-700">{msg || (pkg && days && !addressOk ? "Enter your full delivery address to continue." : "")}</p>
+          <p className="mt-2 text-xs">48-hour cancellation policy: full refund if you cancel at least 48 hours before delivery. Weather exceptions apply. The full policy is in the agreement you sign.</p>
           <ul className="my-2 flex flex-wrap gap-x-4 gap-y-1 text-sm font-bold" aria-live="polite">
             {([["Package", !!pkg], ["Dates", days > 0 && days <= maxDays], ["Gear available", !pkg || chosen.every((p) => !soldOut(p.id))],
               ["Delivery address", addressOk], ["Name", me.name.trim().length > 1], ["Email", /\S+@\S+\.\S+/.test(me.email)],
@@ -213,6 +214,7 @@ export default function Reserve() {
           <div className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-xl bg-white p-5">
             <h2 className="text-2xl font-bold">Rental agreement</h2>
             <div tabIndex={0} className="mt-2 h-44 overflow-auto rounded border p-2 text-sm">{TERMS.map((t) => <p key={t} className="mb-2">{t}</p>)}</div>
+            <div className="mt-2 rounded border-2 border-yellow-300 bg-teal-50 p-2 text-sm"><b>Cancellation policy.</b> {CANCELLATION_POLICY.join(" ")}</div>
             <p className="mt-3 font-bold">Sign below, {me.name}</p>
             <SignaturePad onChange={setSig} />
             <label className="mt-3 flex items-start gap-2"><input type="checkbox" className="mt-1" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} /> I have read and agree to the rental agreement and waiver.</label>
