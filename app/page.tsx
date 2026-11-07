@@ -1,6 +1,8 @@
 import CatchOfTheDay from "@/components/CatchOfTheDay";
 import FishingMap from "@/components/FishingMap";
 import { getCatalog } from "@/lib/catalog";
+import { localBusinessSchema } from "@/lib/schema";
+import JsonLd from "@/components/JsonLd";
 import Reserve from "./reserve/Reserve";
 
 // Put your logo file at public/logo.png
@@ -13,6 +15,7 @@ export default async function Home() {
   const catalog = await getCatalog();
   return (
     <main className="mx-auto max-w-4xl space-y-5 p-4">
+      <JsonLd data={localBusinessSchema(catalog)} />
       <header className="text-center">
         <img src="/logo.png" alt="Anchor Management Destin fishing gear rental logo" className="mx-auto w-80 max-w-[80%]" />
         <h1 className="mt-2 text-3xl font-extrabold">Fishing Gear Rental in Destin, FL</h1>
