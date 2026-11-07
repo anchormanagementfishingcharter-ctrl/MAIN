@@ -9,8 +9,14 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-4xl space-y-5 p-4">
       <header className="text-center">
-        <img src="/logo.png" alt="Anchor Management Destin" className="mx-auto w-80 max-w-[80%]" />
-        <h1 className="mt-2 text-3xl font-extrabold">Rent it. Fish it. Return it.</h1>
+        <img src="/logo.png" alt="Anchor Management Destin fishing gear rental logo" className="mx-auto w-80 max-w-[80%]" />
+        <h1 className="mt-2 text-3xl font-extrabold">Fishing Gear Rental in Destin, FL</h1>
+        <p className="text-lg font-bold text-teal-800">Rent it. Fish it. Return it.</p>
+        <p className="mx-auto mt-2 max-w-2xl">
+          Anchor Management Destin delivers rods, reels, tackle and bait to your condo, beach house or hotel in Destin,
+          Miramar Beach, Fort Walton Beach and 30A. Pick a fishing package, choose your dates, and we bring everything to
+          you and pick it up when you are done. No need to buy or haul your own gear.
+        </p>
         <nav className="mt-3 flex flex-wrap justify-center gap-2" aria-label="More from Anchor Management">
           {links.map(([href, label]) => (
             <a key={href} href={href} className="rounded-full border-2 border-teal-700 px-4 py-2 text-sm font-bold text-teal-800 hover:bg-yellow-300 hover:text-slate-900">{label}</a>
