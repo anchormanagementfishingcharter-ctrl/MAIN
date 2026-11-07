@@ -1,11 +1,16 @@
 import CatchOfTheDay from "@/components/CatchOfTheDay";
 import FishingMap from "@/components/FishingMap";
+import { getCatalog } from "@/lib/catalog";
 import Reserve from "./reserve/Reserve";
 
 // Put your logo file at public/logo.png
 const links = [["/recipes", "Recipes & cooking videos"], ["/howto", "How-to videos"], ["/photos", "Customer photos"], ["/photos/share", "Share your catch"]];
 
-export default function Home() {
+// Rebuilt at most once a minute, so price and package changes in the admin show up quickly.
+export const revalidate = 60;
+
+export default async function Home() {
+  const catalog = await getCatalog();
   return (
     <main className="mx-auto max-w-4xl space-y-5 p-4">
       <header className="text-center">
@@ -24,7 +29,7 @@ export default function Home() {
         </nav>
       </header>
       <CatchOfTheDay />
-      <Reserve />
+      <Reserve initialCatalog={catalog} />
       <FishingMap />
       <section className="rounded-xl border bg-white p-4 shadow-sm">
         <h2 className="text-2xl font-bold">Weather and tides</h2>
