@@ -6,7 +6,7 @@ export const BUSINESS = {
   description:
     "Fishing gear rental in Destin, FL, delivered to your condo or beach house. Rods, reels, tackle and bait for surf, kids and family trips.",
   // Paste your real links between the quotes. Empty ones are left out.
-  facebookUrl: "",        // for example https://www.facebook.com/yourpage
+  facebookUrl: "https://www.facebook.com/profile.php?id=61591053811158",        // for example https://www.facebook.com/yourpage
   googleProfileUrl: "",   // the link to your Google Business Profile
 };
 
