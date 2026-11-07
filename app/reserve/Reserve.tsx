@@ -14,6 +14,7 @@ const money = (c: number) => new Intl.NumberFormat("en-US", { style: "currency",
 const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 /** 2026-11-01 -> 11/01/2026. Change the slashes in the template below to change the look. */
 const pretty = (d: string) => { const [y, m, day] = d.split("-"); return `${m}/${day}/${y}`; };
+const defaultCity = (c: Catalog) => c.zones.find((z) => z.city === "Destin")?.city ?? c.zones[0]?.city ?? "";
 const card = "rounded-xl border bg-white p-4 shadow-sm";
 const input = "w-full rounded border p-2";
 
@@ -37,8 +38,10 @@ function SignaturePad({ onChange }: { onChange: (png: string | null) => void }) 
   );
 }
 
-export default function Reserve() {
-  const [cat, setCat] = useState<Catalog | null>(null);
+export default function Reserve({ initialCatalog }: { initialCatalog?: Catalog }) {
+  // Packages arrive with the page itself (so Google can read them). If that list came back empty, fall back to fetching.
+  const ssr = initialCatalog && initialCatalog.products.length > 0 ? initialCatalog : undefined;
+  const [cat, setCat] = useState<Catalog | null>(ssr ?? null);
   const [pkg, setPkg] = useState("");
   const [extras, setExtras] = useState<string[]>([]);
   const [start, setStart] = useState(""), [end, setEnd] = useState("");
@@ -46,7 +49,7 @@ export default function Reserve() {
   const [avail, setAvail] = useState<Record<string, number>>({});
   const [availState, setAvailState] = useState<"idle" | "loading" | "ok" | "error">("idle");
   const [bait, setBait] = useState<Record<string, number>>({});
-  const [city, setCity] = useState(""), [address, setAddress] = useState("");
+  const [city, setCity] = useState(ssr ? defaultCity(ssr) : ""), [address, setAddress] = useState("");
   const [me, setMe] = useState({ name: "", email: "", phone: "" });
   const [open, setOpen] = useState(false), [agreed, setAgreed] = useState(false);
   const [smsOk, setSmsOk] = useState(false);
@@ -54,7 +57,7 @@ export default function Reserve() {
   const [msg, setMsg] = useState(""), [busy, setBusy] = useState(false);
   const [month, setMonth] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
 
-  useEffect(() => { fetch("/api/catalog").then((r) => r.json()).then((c: Catalog) => { setCat(c); setCity(c.zones.find((z) => z.city === "Destin")?.city ?? c.zones[0]?.city ?? ""); }); }, []);
+  useEffect(() => { if (ssr) return; fetch("/api/catalog").then((r) => r.json()).then((c: Catalog) => { setCat(c); setCity(defaultCity(c)); }); }, []);
   useEffect(() => {
     if (!start) { setAvailState("idle"); return; }
     setAvailState("loading");
